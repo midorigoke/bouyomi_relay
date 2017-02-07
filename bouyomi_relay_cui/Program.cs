@@ -93,9 +93,9 @@ namespace bouyomi_relay_cui
 						}
 
 						string message_concated = message_prefix + message_string + message_suffix;
-
 						byte[] message_concated_byte = Encoding.UTF8.GetBytes(message_concated);
 
+						code = 0;
 						length = message_concated_byte.Length;
 
 						TcpClient tc = null;
@@ -120,10 +120,14 @@ namespace bouyomi_relay_cui
 							tx_bw.Write(tone);
 							tx_bw.Write(volume);
 							tx_bw.Write(voice);
-							tx_bw.Write(0);
+							tx_bw.Write(code);
 							tx_bw.Write(length);
 							tx_bw.Write(message_concated_byte);
 
+							Console.WriteLine("Data sent: " + message_concated);
+
+							tx_bw.Close();
+							tx_ns.Close();
 							tc.Close();
 						}
 
@@ -133,7 +137,6 @@ namespace bouyomi_relay_cui
 				rx_br.Close();				
 				rx_ns.Close();
 				rx_client.Close();
-
 			}
 		}
 	}
