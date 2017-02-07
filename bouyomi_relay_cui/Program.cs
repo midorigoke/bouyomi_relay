@@ -16,32 +16,49 @@ namespace bouyomi_relay_cui
 			string message_prefix = null;
 			string message_suffix = null;
 
-			switch (args.Length)
+			try
 			{
-				case 4:
-					rx_port = Int32.Parse(args[0]);
-					tx_host = args[1];
-					tx_port = Int32.Parse(args[2]);
-					message_prefix = args[3];
-					break;
+				switch (args.Length)
+				{
+					case 4:
+						rx_port = Int32.Parse(args[0]);
+						tx_host = args[1];
+						tx_port = Int32.Parse(args[2]);
+						message_prefix = args[3];
+						break;
 
-				case 5:
-					rx_port = Int32.Parse(args[0]);
-					tx_host = args[1];
-					tx_port = Int32.Parse(args[2]);
-					message_prefix = args[3];
-					message_suffix = args[4];
-					break;
+					case 5:
+						rx_port = Int32.Parse(args[0]);
+						tx_host = args[1];
+						tx_port = Int32.Parse(args[2]);
+						message_prefix = args[3];
+						message_suffix = args[4];
+						break;
 
-				default:
-					Console.Error.WriteLine("使用法: bouyomi_relay_cui <RX Port> <TX Host> <TX Port> <Massage Prefix> [Massage Suffix]");
-					return;
+					default:
+						Console.Error.WriteLine("使用法: bouyomi_relay_cui <RX Port> <TX Host> <TX Port> <Massage Prefix> [Massage Suffix]");
+						return;
+				}
+			}
+			catch
+			{
+				Console.Error.WriteLine("使用法: bouyomi_relay_cui <RX Port> <TX Host> <TX Port> <Massage Prefix> [Massage Suffix]");
+				return;
 			}
 
-			TcpListener tl = new TcpListener(IPAddress.Any, rx_port);
+			TcpListener tl = null;
 
-			tl.Start();
+			try
+			{
+				tl = new TcpListener(IPAddress.Any, rx_port);
 
+				tl.Start();
+			}
+			catch
+			{
+				Console.Error.WriteLine("TCPサーバの立ち上げに失敗しました");
+				return;
+			}
 			while (true)
 			{
 				TcpClient rx_client = tl.AcceptTcpClient();
@@ -82,7 +99,7 @@ namespace bouyomi_relay_cui
 							case 0:
 								message_string = Encoding.UTF8.GetString(message_byte);
 								break;
-								
+
 							case 1:
 								message_string = Encoding.Unicode.GetString(message_byte);
 								break;
@@ -106,7 +123,7 @@ namespace bouyomi_relay_cui
 						}
 						catch
 						{
-							Console.Error.WriteLine("接続失敗");
+							Console.Error.WriteLine("接続に失敗しました");
 						}
 
 						if (tc != null)
@@ -134,7 +151,7 @@ namespace bouyomi_relay_cui
 						break;
 				}
 
-				rx_br.Close();				
+				rx_br.Close();
 				rx_ns.Close();
 				rx_client.Close();
 			}
